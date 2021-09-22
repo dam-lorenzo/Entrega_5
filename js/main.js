@@ -1,79 +1,62 @@
-let result = '';
-let retry = true;
-let bits1 =  '010100';
-let bits2 =  '000111';
-let operation = 'OR';
+const books = []
 
-while (retry) {
-    bits1 = prompt('Ingrese los primeros bits a comparar');
-    bits2 = prompt('Ingrese los segundos bits a comparar');
-    retry = validateBits(bits1, bits2)
+class readedBook {
+    constructor(title, genre, author, year, pages, timeToRead, rating) {
+        this.title = title;
+        this.genres = genre.split(' ');
+        this.author = author;
+        this.year = parseInt(year);
+        this.pages = parseInt(pages);
+        this.estimateTime = parseFloat(timeToRead);
+        this.rating = parseFloat(rating);
+    }
+    
+    addTime(time) {
+        time = parseFloat(time);
+        this.estimateTime = (this.estimateTime + time)/2;
+    }
+
+    addGenre(genres) {
+        for (const genre of genres) {
+            if (this.genres.includes(genre)) {
+                this.genres.push(genre)
+            }
+        }
+    }
+
+    addRating(rating) {
+        rating = parseFloat(rating)
+        this.rating = (this.rating + rating)/2
+    }
 }
+
+function requestBookData() {
+    let title = prompt("Ingrese el titulo del libro:");
+    let genre = prompt("Ingrese los generos del libro (solo separado por espacios):");
+    let author = prompt("Ingrese el nombre del autor:");
+    let pages = prompt("Ingrese la cantidad de paginas del libro (solo el numero):");
+    let time = prompt("Ingrese el tiempo que le llevo leerlo (solo las horas):");
+    let rating = prompt("Ingrese cuantas estrellas del 1 al 5 le asigna (solo el numero):");
+    let year = prompt("Ingrese el año de publicacion:");
+    const book = new readedBook(title, genre, author, year, pages, time, rating);
+    return book
+}
+
 while (true) {
-    operation = prompt('Ingrese la operacion "AND" o "OR" para los bits');
-    if ((operation != 'AND') && (operation != 'OR')) {
-        alert('Ingrese una operacion valida "AND" o "OR" deben estan en mayuscula')
-        continue
-    }
-    break
-}
-
-result = compare (bits1, bits2, operation)
-alert(  'Primeros bits:       ' + bits1 + '\n' +
-        'Segundos bits:     ' + bits2 + '\n' +
-        'Operacion:           ' + operation + '\n' +
-        'El resulado es:      ' + result)
-
-function validateBits (bit1, bit2) {
-    if (bit1.length != bit2.length) {
-        alert('Los dos bits deben tener el mismo largo, vuelva a intentar')
-        return true;
-    }
-    for (let i = 0; i < bit1.length; i++) {
-        if ((bit1[i] != '1') && (bit1[i] != '0')) {
-            alert('Los bits deben contener solo 1 y 0, vuelva a intentar')
-            return true
-        }
-    }
-    for (let i = 0; i < bit2.length; i++) {
-        if ((bit2[i] != '1') && (bit2[i] != '0')) {
-            alert('Los bits deben contener solo 1 y 0, vuelva a intentar')
-            return true
-        }
-    }
-    return false
-}
-
-function compare (bit1, bit2, op) {
-    for (let i = 0; i < bit1.length; i++) {
-        if (op == "AND") {
-            result = result + andCompare(bit1[i], bit2[i])
-        }
-        else {
-            result = result + orCompare(bit1[i], bit2[i])
-        }
-    }
-    return result
-}
-
-function andCompare(bit1, bit2) {
-    if ((bit1 == '1') && (bit2 == '1')) {
-        return '1';
+    const newBook = requestBookData() 
+    const book = books.find(item => item.title == newBook.title && item.year == newBook.year )
+    if(book) {
+        book.addTime(newBook.time)
+        book.addRating(newBook.rating)
+        book.addGenre(newBook.genres)
     }
     else {
-        return '0';
+        books.push(newBook);
+    }
+
+    if (prompt('Desea ingresar otro libro?:').toLowerCase() == 'no'){
+        break;
     }
 }
 
-function orCompare(bit1, bit2) {
-    let a = (bit1 == '1')
-    let b = (bit2 == '1')
-    //quise hacer la operacion de comparar directamente en el if
-    // entraba directamente siempre al if, incluso en los casos que debia pasar al else
-    if ((a) || (b)) {
-        return '1';
-    }
-    else {
-        return '0';
-    }
-}
+console.log(books)
